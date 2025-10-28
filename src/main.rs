@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use osui::prelude::*;
 
-use crate::emulator::{Instruction, Registry};
+use crate::emulator::{instruction::Instruction, registry::Registry};
 
 fn main() {
     let screen = Screen::new();
@@ -21,7 +21,7 @@ fn main() {
     screen.run().unwrap();
 }
 
-fn app(_screen: &Arc<Screen>, instructions: Vec<emulator::Instruction>) -> Rsx {
+fn app(_screen: &Arc<Screen>, instructions: Vec<Instruction>) -> Rsx {
     let pc = use_state::<usize>(0);
     let inst = use_state::<Instruction>(Instruction::HLT);
     let registers = Registry(use_state([0; 8]));

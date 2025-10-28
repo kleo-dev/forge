@@ -1,16 +1,11 @@
+pub mod instruction;
+pub mod registry;
+
 use std::fmt::Display;
 
 use osui::state::{DependencyHandler, State};
 
-#[derive(Debug, Clone)]
-pub struct Registry(pub State<[usize; 8]>);
-
-#[derive(Debug, Clone)]
-pub enum Instruction {
-    HLT,
-    REG(u8, usize),
-    ADD(u8, u8, u8),
-}
+use crate::emulator::{instruction::Instruction, registry::Registry};
 
 pub struct Emulator {
     pub pc: State<usize>,
@@ -22,7 +17,7 @@ pub struct Emulator {
 impl Emulator {
     pub fn run(&self) {
         loop {
-            std::thread::sleep(std::time::Duration::from_millis(300));
+            std::thread::sleep(std::time::Duration::from_millis(100));
             let mut pc = self.pc.get();
             if let Some(inst) = self.instructions.get(**pc) {
                 **self.inst.get() = inst.clone();
@@ -83,19 +78,5 @@ impl DependencyHandler for Registry {
 
     fn check(&self) -> bool {
         self.0.check()
-    }
-}
-
-impl Display for Instruction {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Instruction::HLT => format!("HLT"),
-                Instruction::REG(a, b) => format!("REG {a}, {b}"),
-                Instruction::ADD(a, b, c) => format!("ADD {a}, {b}, {c}"),
-            }
-        )
     }
 }
