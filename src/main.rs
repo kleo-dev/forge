@@ -6,29 +6,51 @@ use std::sync::Arc;
 
 use osui::prelude::*;
 
+use crate::emulator::{Instruction, Registry};
+
 fn main() {
     let screen = Screen::new();
+    let instructions = vec![
+        Instruction::REG(0, 6),
+        Instruction::REG(1, 7),
+        Instruction::ADD(0, 1, 2), // 6 + 7
+    ];
 
-    app(&screen).draw(&screen);
+    app(&screen, instructions).draw(&screen);
 
     screen.run().unwrap();
 }
 
-fn app(_screen: &Arc<Screen>) -> Rsx {
-    let pc = use_state::<u32>(0);
+fn app(_screen: &Arc<Screen>, instructions: Vec<emulator::Instruction>) -> Rsx {
+    let pc = use_state::<usize>(0);
+    let inst = use_state::<Instruction>(Instruction::HLT);
+    let registers = Registry(use_state([0; 8]));
 
-    // Spawn a thread to emulate the program
-    std::thread::spawn({
-        let pc = pc.clone();
-        move || loop {
-            **pc.get() += 1;
-        }
-    });
+    let emulator = emulator::Emulator {
+        pc: pc.clone(),
+        registers: registers.clone(),
+        inst: inst.clone(),
+        instructions,
+    };
+
+    std::thread::spawn(move || emulator.run());
 
     rsx! {
-        FlexRow {
+        FlexRow, gap: 1, {
+            @Style { foreground: None, background: Background::RoundedOutline(0x0000ff) };
+            @Transform::new().padding(1, 1);
             %pc
             "Program Counter: {pc}"
+
+            @Style { foreground: None, background: Background::RoundedOutline(0xff0000) };
+            @Transform::new().padding(1, 1);
+            %registers
+            "{registers}"
         }
+
+        @Style { foreground: None, background: Background::RoundedOutline(0x0000ff) };
+        @Transform::center().padding(2, 2);
+        %inst
+        "Current instruction: {inst}"
     }
 }

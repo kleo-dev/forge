@@ -1,0 +1,101 @@
+use std::fmt::Display;
+
+use osui::state::{DependencyHandler, State};
+
+#[derive(Debug, Clone)]
+pub struct Registry(pub State<[usize; 8]>);
+
+#[derive(Debug, Clone)]
+pub enum Instruction {
+    HLT,
+    REG(u8, usize),
+    ADD(u8, u8, u8),
+}
+
+pub struct Emulator {
+    pub pc: State<usize>,
+    pub instructions: Vec<Instruction>,
+    pub registers: Registry,
+    pub inst: State<Instruction>,
+}
+
+impl Emulator {
+    pub fn run(&self) {
+        loop {
+            std::thread::sleep(std::time::Duration::from_millis(300));
+            let mut pc = self.pc.get();
+            if let Some(inst) = self.instructions.get(**pc) {
+                **self.inst.get() = inst.clone();
+                match &inst {
+                    // 1 | Halt
+                    Instruction::HLT => break,
+
+                    // 2 | Registry set
+                    Instruction::REG(r, v) => self.registers.set(*r, *v),
+
+                    // 3 | Add
+                    Instruction::ADD(rx, ry, r) => {
+                        let x = self.registers.get(*rx);
+                        let y = self.registers.get(*ry);
+                        self.registers.set(*r, x + y);
+                    }
+                }
+                **pc += 1;
+            } else {
+                break;
+            }
+        }
+    }
+}
+
+impl Registry {
+    pub fn get(&self, r: u8) -> usize {
+        match self.0.get().get(r as usize) {
+            Some(v) => *v,
+            None => 0,
+        }
+    }
+
+    pub fn set(&self, r: u8, v: usize) {
+        if let Some(o) = self.0.get().get_mut(r as usize) {
+            *o = v;
+        }
+    }
+}
+
+impl Display for Registry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "rx: {}, ry: {}\nrz: {}, ra: {}",
+            self.get(0),
+            self.get(1),
+            self.get(2),
+            self.get(3),
+        )
+    }
+}
+
+impl DependencyHandler for Registry {
+    fn add(&self) {
+        self.0.add()
+    }
+
+    fn check(&self) -> bool {
+        self.0.check()
+    }
+}
+
+impl Display for Instruction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Instruction::HLT => format!("HLT"),
+                Instruction::REG(a, b) => format!("REG {a}, {b}"),
+                Instruction::ADD(a, b, c) => format!("ADD {a}, {b}, {c}"),
+            }
+        )
+    }
+}
