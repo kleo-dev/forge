@@ -2,21 +2,20 @@ mod binary;
 mod emulator;
 mod text;
 
-use std::sync::Arc;
+use std::{fs, sync::Arc};
 
 use osui::prelude::*;
 
-use crate::emulator::{instruction::Instruction, registry::Registry};
+use crate::{
+    emulator::{instruction::Instruction, registry::Registry},
+    text::from_text,
+};
 
 fn main() {
     let screen = Screen::new();
-    let instructions = vec![
-        Instruction::REG(0, 6),
-        Instruction::REG(1, 7),
-        Instruction::ADD(0, 1, 2), // 6 + 7
-    ];
+    let s = fs::read_to_string("input.fg").unwrap();
 
-    app(&screen, instructions).draw(&screen);
+    app(&screen, from_text(&s)).draw(&screen);
 
     screen.run().unwrap();
 }

@@ -1,0 +1,3 @@
+REG rx, 6
+REG ry, 7
+ADD rx, ry, 0
