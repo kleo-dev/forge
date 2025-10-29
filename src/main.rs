@@ -1,19 +1,53 @@
-mod binary;
 mod emulator;
 
-use std::{collections::HashMap, fs, sync::Arc};
+use std::{
+    collections::HashMap,
+    env,
+    fs::{self, File},
+    io::Write,
+    sync::Arc,
+};
 
 use osui::prelude::*;
 
 use crate::emulator::{instruction::Instruction, registry::Registry};
 
 fn main() {
-    let screen = Screen::new();
-    let s = fs::read_to_string("input.fg").unwrap();
+    let args: Vec<_> = env::args().collect();
+    if let Some(file) = args.get(1) {
+        if file.ends_with(".fg") {
+            let s = fs::read_to_string(file).unwrap();
+            let instructions = Instruction::from_text(&s);
+            let mut bytes = Vec::new();
+            for (i, instr) in instructions.iter().enumerate() {
+                bytes.extend(instr.encode());
+                if i != instructions.len() - 1 {
+                    bytes.push(0x0D);
+                }
+            }
+            let mut file = File::create("out.bin").unwrap();
+            file.write_all(&bytes).unwrap();
 
-    app(&screen, Instruction::from_text(&s)).draw(&screen);
+            println!("Compiled successfully");
+        } else {
+            let bytes = fs::read(file).unwrap();
 
-    screen.run().unwrap();
+            let mut instructions = Vec::new();
+            for chunk in bytes.split(|b| *b == 0x0D) {
+                if let Some(instr) = Instruction::decode(chunk) {
+                    instructions.push(instr);
+                }
+            }
+
+            let screen = Screen::new();
+
+            app(&screen, instructions).draw(&screen);
+
+            screen.run().unwrap();
+        }
+    } else {
+        eprintln!("\x1b[31mERR: Please enter a file\x1b[0m")
+    }
 }
 
 fn app(_screen: &Arc<Screen>, instructions: Vec<Instruction>) -> Rsx {
