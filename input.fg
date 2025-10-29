@@ -1,11 +1,6 @@
-reg rx, 1
-reg ry, 2
-mul rx, ry, rx
-mul rx, ry, rx
-mul rx, ry, rx
-mul rx, ry, rx
-mul rx, ry, rx
-mul rx, ry, rx
-mul rx, ry, rx
-mul rx, ry, rx
-mul rx, ry, rx
+reg ra, 1
+reg rb, 2
+
+label double
+mul ra, rb, ra
+jmp double

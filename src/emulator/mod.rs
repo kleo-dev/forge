@@ -1,7 +1,7 @@
 pub mod instruction;
 pub mod registry;
 
-use std::fmt::Display;
+use std::{collections::HashMap, fmt::Display};
 
 use osui::state::{DependencyHandler, State};
 
@@ -12,6 +12,7 @@ pub struct Emulator {
     pub instructions: Vec<Instruction>,
     pub registers: Registry,
     pub inst: State<Instruction>,
+    pub labels: State<HashMap<String, usize>>,
 }
 
 impl Emulator {
@@ -55,6 +56,18 @@ impl Emulator {
                         let x = self.registers.get(*rx);
                         let y = self.registers.get(*ry);
                         self.registers.set(*r, x / y);
+                    }
+
+                    // 6 | Label
+                    Instruction::Label(l) => {
+                        self.labels.get().insert(l.clone(), **pc);
+                    }
+
+                    // 7 | Jump
+                    Instruction::Jmp(l) => {
+                        if let Some(v) = self.labels.get().get(l) {
+                            **pc = *v;
+                        }
                     }
                 }
             } else {
