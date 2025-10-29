@@ -1,3 +1,11 @@
-REG rx, 6
-REG ry, 7
-ADD rx, ry, 0
+reg rx, 1
+reg ry, 2
+mul rx, ry, rx
+mul rx, ry, rx
+mul rx, ry, rx
+mul rx, ry, rx
+mul rx, ry, rx
+mul rx, ry, rx
+mul rx, ry, rx
+mul rx, ry, rx
+mul rx, ry, rx

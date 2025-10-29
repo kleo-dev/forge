@@ -22,7 +22,7 @@ fn main() {
 
 fn app(_screen: &Arc<Screen>, instructions: Vec<Instruction>) -> Rsx {
     let pc = use_state::<usize>(0);
-    let inst = use_state::<Instruction>(Instruction::HLT);
+    let inst = use_state::<Instruction>(Instruction::Hlt);
     let registers = Registry(use_state([0; 8]));
 
     let emulator = emulator::Emulator {

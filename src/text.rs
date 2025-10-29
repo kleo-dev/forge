@@ -21,9 +21,12 @@ pub fn from_text(s: &str) -> Vec<Instruction> {
             let args: Vec<&str> = args.split(',').map(str::trim).collect();
 
             match name.to_lowercase().as_str() {
-                "hlt" => Some(Instruction::HLT),
-                "reg" => Some(Instruction::REG(reg(args[0]), num(args[1]))),
-                "add" => Some(Instruction::ADD(reg(args[0]), reg(args[1]), reg(args[2]))),
+                "hlt" => Some(Instruction::Hlt),
+                "reg" => Some(Instruction::Reg(reg(args[0]), num(args[1]))),
+                "add" => Some(Instruction::Add(reg(args[0]), reg(args[1]), reg(args[2]))),
+                "sub" => Some(Instruction::Sub(reg(args[0]), reg(args[1]), reg(args[2]))),
+                "mul" => Some(Instruction::Mul(reg(args[0]), reg(args[1]), reg(args[2]))),
+                "div" => Some(Instruction::Div(reg(args[0]), reg(args[1]), reg(args[2]))),
                 _ => None,
             }
         })

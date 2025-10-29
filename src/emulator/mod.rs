@@ -20,22 +20,43 @@ impl Emulator {
             std::thread::sleep(std::time::Duration::from_millis(100));
             let mut pc = self.pc.get();
             if let Some(inst) = self.instructions.get(**pc) {
+                **pc += 1;
                 **self.inst.get() = inst.clone();
                 match &inst {
                     // 1 | Halt
-                    Instruction::HLT => break,
+                    Instruction::Hlt => break,
 
                     // 2 | Registry set
-                    Instruction::REG(r, v) => self.registers.set(*r, *v),
+                    Instruction::Reg(r, v) => self.registers.set(*r, *v),
 
                     // 3 | Add
-                    Instruction::ADD(rx, ry, r) => {
+                    Instruction::Add(rx, ry, r) => {
                         let x = self.registers.get(*rx);
                         let y = self.registers.get(*ry);
                         self.registers.set(*r, x + y);
                     }
+
+                    // 3 | Subtract
+                    Instruction::Sub(rx, ry, r) => {
+                        let x = self.registers.get(*rx);
+                        let y = self.registers.get(*ry);
+                        self.registers.set(*r, x - y);
+                    }
+
+                    // 4 | Multiply
+                    Instruction::Mul(rx, ry, r) => {
+                        let x = self.registers.get(*rx);
+                        let y = self.registers.get(*ry);
+                        self.registers.set(*r, x * y);
+                    }
+
+                    // 5 | Divide
+                    Instruction::Div(rx, ry, r) => {
+                        let x = self.registers.get(*rx);
+                        let y = self.registers.get(*ry);
+                        self.registers.set(*r, x / y);
+                    }
                 }
-                **pc += 1;
             } else {
                 break;
             }

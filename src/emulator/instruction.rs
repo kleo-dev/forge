@@ -2,9 +2,12 @@ use std::fmt::Display;
 
 #[derive(Debug, Clone)]
 pub enum Instruction {
-    HLT,
-    REG(u8, usize),
-    ADD(u8, u8, u8),
+    Hlt,
+    Reg(u8, usize),
+    Add(u8, u8, u8),
+    Sub(u8, u8, u8),
+    Mul(u8, u8, u8),
+    Div(u8, u8, u8),
 }
 
 impl Display for Instruction {
@@ -13,9 +16,12 @@ impl Display for Instruction {
             f,
             "{}",
             match self {
-                Instruction::HLT => format!("HLT"),
-                Instruction::REG(a, b) => format!("REG {a}, {b}"),
-                Instruction::ADD(a, b, c) => format!("ADD {a}, {b}, {c}"),
+                Instruction::Hlt => format!("HLT"),
+                Instruction::Reg(a, b) => format!("REG {a}, {b}"),
+                Instruction::Add(a, b, c) => format!("ADD {a}, {b}, {c}"),
+                Instruction::Sub(a, b, c) => format!("SUB {a}, {b}, {c}"),
+                Instruction::Mul(a, b, c) => format!("MUL {a}, {b}, {c}"),
+                Instruction::Div(a, b, c) => format!("DIV {a}, {b}, {c}"),
             }
         )
     }
